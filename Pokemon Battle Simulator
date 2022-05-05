@@ -1,0 +1,187 @@
+#The following is a simple pokemon battle simulator
+
+#Change the "user" and "enemy" objects to change Pokemon Stats 
+
+# Press a button to attack
+
+#The Pokemon to get its opponent's hp down to 0 wins
+
+
+
+import random
+type_list = ["Fire", "Water", "Grass"]
+class Pokemon:
+    def __init__(self, name: str, damage: int, health: int, type: str) -> None:
+        self.name = name
+        self.damage = damage
+        self.health = health
+        self.type = type
+        self.item_heal = item(health)
+        self.ability = ability(damage)
+  
+    def get_name (self):
+        return self.name
+    
+    def get_damage (self):
+        return self.damage
+
+    def get_health (self):
+        return self.health 
+
+    def take_damage (self,damage):
+        self.health -= damage
+        return self.health
+
+    def heal(self, heal):
+      self.item_heal.set_healing (heal)
+     
+    def ability_damage (self, ability_boost):
+      self.ability.set_damage_boost (ability_boost)
+      
+    def set_type (self):
+        if type not in type_list:
+          self.type = random.choice(type_list)
+          return self.type
+        else:
+          return self.type
+          
+class item:
+    def __init__(self, final_health:int):
+      self.health = final_health
+      self._heal = None
+    
+    def set_healing (self,heal):
+      if heal > 10:
+        raise ValueError(f"Max heal allowed is 10")
+      self._heal = heal
+
+    def get_healing (self):
+      return self._heal
+    
+    def get_final_health(self, before_health, heal):
+      print(f" your health before healing is {before_health}")
+      print()
+      self.health = before_health + heal
+      return self.health
+
+class ability:
+    def __init__(self, damage: int):
+      self.damage = damage
+      self._damage_boost = None
+    
+    def set_damage_boost(self,damage_boost):
+      if damage_boost > 10:
+        raise ValueError(f"Max ability boost allowed is 10")
+      self._damage_boost = damage_boost
+
+    def get_damage_boost(self):
+      return self._damage_boost
+    
+    def get_damage_after_boost(self, damage_boost):
+      self.damage += damage_boost
+      return self.damage
+        
+class Enemy:
+    def __init__(self, name: str, damage: int, health: int, type: str) -> None:
+        self.name = name
+        self.damage = damage
+        self.health = health
+        self.type = type
+  
+    def get_name (self):
+        return self.name
+    
+    def get_damage (self):
+        return self.damage
+
+    def get_health (self):
+        return self.health 
+      
+    def set_type (self):
+        if type not in type_list:
+          self.type = random.choice(type_list)
+          return self.type
+        else:
+          return self.type
+
+#Pokemon(Name,damage,health,type,ability_boost,heal)
+user = Pokemon("Charmander", 20, 100, "Fire")
+enemy = Enemy("Bulbasaur", 20, 100, "Grass")
+p_type = user.set_type()
+print(f"you're a {p_type} type")
+print("\n")
+e_type = enemy.set_type()
+print(f"enemy is a {e_type} type")
+print("\n")
+
+def damage_multiplier(p_type, e_type, damage):
+  if p_type == "Fire" and e_type == "Grass":
+    return damage*2
+  if p_type == "Grass" and e_type == "Water":
+    return damage*2
+  if p_type == "Water" and e_type == "Fire":
+    return damage*2 
+  if p_type == "Fire" and e_type == "Water":
+    return damage*0.5
+  if p_type == "Grass" and e_type == "Fire":
+    return damage*0.5
+  if p_type == "Water" and e_type == "Grass":
+    return damage*0.5
+  else:
+    return damage
+
+###########################################################################
+battle_continue = True
+user_name = user.get_name()
+user_health = user.get_health()
+enemy_name = enemy.get_name()
+enemy_health = enemy.get_health()
+
+user.ability_damage(10)
+a = user.ability.get_damage_boost()
+damage_after_ability = user.ability.get_damage_after_boost(a)
+print(f"your damage after the ability increase is {damage_after_ability}")
+print()
+damage_to_enemy = damage_multiplier(p_type, e_type, damage_after_ability)
+
+user.heal(10)
+i = user.item_heal.get_healing()
+    
+while battle_continue == True:
+    
+    print("press a button to attack")
+    attack = input("\n: ")
+  
+    print (f"{user_name} dealt {damage_to_enemy} damage")
+    enemy_health = enemy_health - damage_to_enemy
+
+
+    damage_to_user = enemy.get_damage()
+    print (f"{enemy_name} dealt {damage_to_user} damage")
+    user_health = user_health - damage_to_user
+    print()
+
+
+    if user_health <= 0:
+        user_health = 0
+        battle_continue = False
+    if enemy_health <= 0:
+        battle_continue = False
+
+    user_health = user.item_heal.get_final_health(user_health, i)
+    print(f"You healed {i} hp with your item")
+    print()
+
+    print("Your hp is", user_health)
+    print("Enemy's hp is", enemy_health)
+    print()
+
+print("Your final hp is", user_health)
+print("Enemt's final hp is", enemy_health)
+
+if user_health < enemy_health:
+    print("\n you lose")
+
+else:
+
+    print("\n you won")
