@@ -1,0 +1,246 @@
+#Grades sorter
+import json
+class classroom():
+  
+  def __init__(self, name: str, meet_req = True):
+    self.name = name
+    self._meet_req = meet_req
+  
+  def get_name(self) -> str:
+    return self.name
+  
+  def apply_fail_status(self) -> bool:
+    self._meet_req = False
+    
+class final_grades(): #aggregation (boost grades)
+  
+  def __init__(self, final_grade: float):
+    self._final_grade = final_grade
+  
+  def add (self,amount: int):
+    self._final_grade += amount    
+  
+  def return_grade (self) -> float: 
+    return self._final_grade
+   
+class student(classroom): #inheritance
+ 
+  def __init__(self, name: str, grade: float):
+    super().__init__(name, meet_req = True)
+    self.grade = final_grades(grade)
+ 
+  def boost(self,amount: int): #set final grade
+      if amount > 15:
+        raise ValueError("Too high of a raise")
+      print()
+      print(f"{self.name}'s grade is boosted from by {amount} from {self.grade.return_grade()}")
+      self.grade.add(amount)
+  
+  def get_final_grade (self) -> float:
+    print()
+    print(f"{self.name}'s final grade is {self.grade.return_grade()}")
+    return self.grade.return_grade()
+
+  def set_fail_or_pass (self):
+    if self.grade._final_grade < 50:
+      self._meet_req = False
+      print("")
+      print(f"{self.name} fails the class")
+    else:
+      print("")
+      print(f"{self.name} passes the class")
+  
+  def get_fail_or_pass (self) -> bool:
+    return self._meet_req
+
+class teacher(classroom): #inheritance
+  
+  def __init__(self, name: str, class_marks = None, class_names = None):
+    super().__init__(name, meet_req = True )
+    if class_marks is None:
+      self.class_marks = []
+    else:
+      self.class_marks= class_marks
+    
+    self._avg = None
+  
+  def add_grade(self,mark: float):
+    self.class_marks.append(mark)
+
+  def set_avg(self):
+    if len(self.class_marks) == 0:
+      self._avg = 0
+    else:
+      self._avg = sum(self.class_marks)/len(self.class_marks)
+
+  def get_avg(self) -> float:
+    return self._avg
+
+  def set_fail_or_pass(self):
+    if self._avg < 60:
+      self._meet_req = False
+      print()
+      print(f"{self.name} requires an evaluation")
+      print()
+    else:
+      pass
+  
+  def get_fail_or_pass(self) -> bool:
+    return self._meet_reeq
+
+#Add 5 students here
+
+student_names= []
+student_marks = []
+students_mark_dict = {}
+students_subjects = {}
+students_teacher_dict = {}
+teachers_average_dict = {}
+num_of_students = int(input("How many students do you want to input? "))
+
+
+def enter_students(num_of_students):
+  num_of_tests = int(input("How many tests per student? "))
+
+  for x in range (num_of_students):
+    grade_sum = 0
+    print()
+    name = input("Enter name: ")
+    print()
+    for x in range(num_of_tests):
+      grade = int(input("Enter grade: "))
+      grade_sum = grade_sum + grade
+      grade_avg = grade_sum/num_of_tests
+      students_mark_dict[f"{name}"] = grade_avg
+
+#Assign values of student names and variables to a list
+  for key in students_mark_dict:
+    student_names.append(key)
+    student_marks.append(students_mark_dict[key])
+
+Gallo = teacher("Daniel Gallo")
+Sarracini = teacher("Chris Sarracini")
+
+def use_student_manager(students_mark_dict, students_teacher_dict, student_names, student_marks, num_of_students, students_subjects):
+  
+ 
+  #create student objects
+  n = 0
+  for x in range (num_of_students):
+    stuname = student_names[n]
+    stumark = student_marks[n]
+    stu= student(stuname, stumark)
+  #option to boost mark
+    boost_or_not = int(input(f"Press 1 if you want to boost {stuname}'s mark, othewise press any button "))
+    if boost_or_not == 1:
+      print()
+      mark_boost = int(input(f"How much do you want to boost {stuname}'s mark by? "))
+      stu.boost(mark_boost)
+    else:
+      pass
+  #get whether student passes or not and their final grade
+    stu.set_fail_or_pass()
+    stu_fmark = stu.get_final_grade()
+    print()
+  #assigns student and their attribute to a teacher 
+    print()
+    teacher = int(input("Who is this student's teacher? Enter 1 or 2 \n(1) Gallo \n(2) Sarracini "))
+    if teacher == 1:
+      Gallo.add_grade(stu_fmark)
+      students_teacher_dict[stuname] = "Gallo"
+    if teacher == 2:
+      Sarracini.add_grade(stu_fmark)
+      students_teacher_dict[stuname] = "Sarracini"
+    #Assigns subject to a student
+    print()
+    subject_input = int(input("What is this student's subject?\n(1) English\n(2)Science\n (3) Math"))
+    if subject_input == 1:
+      subject = "English"
+    if subject_input == 2:
+      subject = "Science"
+    if subject_input == 3:
+      subject = "Math"
+    else:
+      pass
+  #update the student and mark/subject dictionary
+    students_mark_dict.update({stuname:stu_fmark})
+    students_subjects.update({stuname:subject})
+    print()
+    n = n+1
+    
+  print(f"Marks of students:{students_mark_dict}")
+  print()
+  print(f"Teachers of students: {students_teacher_dict}")
+  #Get average of teachers
+  Gallo.set_avg()
+  Sarracini.set_avg()
+  gallo_avg = Gallo.get_avg()
+  sarracni_avg = Sarracini.get_avg()
+  #Adds teachers and their average mark into the dictionary and displays whether they should be evaluated
+  teachers_average_dict["Gallo"] = gallo_avg
+  teachers_average_dict["Sarracini"] = sarracni_avg
+  print()
+  print(f"Gallo's class average is {gallo_avg}")
+  print()
+  print(f"Sarracini's class average is {sarracni_avg}")
+  print()
+  Gallo.set_fail_or_pass()
+  Sarracini.set_fail_or_pass()
+
+def students_sort(students_mark_dict): #sort students by name and grade 
+  sorted_student_names = {k: v for k, v in sorted(students_mark_dict.items())}
+  print()
+  print(f"students sorted in alphabetical order: {sorted_student_names}")
+  print()
+  sorted_students_grades = {k: v for k, v in sorted(students_mark_dict.items(), key = lambda v: v[1])}
+  print(f"students grades sorted from least to greatest: {sorted_students_grades}")
+
+def teachers_by_grade(teachers_average_dict): #sort by grade average and whether they need an evaluation
+  sorted_teachers_names = {k: v for k, v in sorted(teachers_average_dict.items())}
+  print()
+  print(f"teachers sorted in alphabetical order: {sorted_teachers_names}")
+  print()
+  sorted_teachers_grades = {k: v for k, v in sorted(teachers_average_dict.items(), key = lambda v: v[1], reverse = True)}
+  print (f"teachers grades from greatest to least is {sorted_teachers_grades}")
+  print()
+
+def search_student(students_mark_dict, students_subjects):#search for 100% students and science studenst
+  ace_students = list(students_mark_dict.keys())[list(students_mark_dict.values()).index(100)]
+  print(f"ace students are {ace_students}")
+  print()
+  science_students = list(students_mark_dict.keys())[list(students_subjects.values()).index("Science")]
+  print(f"Science students are {science_students}")
+  print()
+
+def filter_student(students_mark_dict, teachers_average_dict): #whether students fail or teachers get evaluated
+  failed_students = {}
+  fired_teachers = {}
+  for key, value in students_mark_dict.items():
+    if value < 50:
+      failed_students[key] = value
+  for key, value in teachers_average_dict.items():
+    if value <60:
+      fired_teachers[key] = value
+  print (f"Failed students: {failed_students}")
+  print()
+  print (f"Fired teachers: {fired_teachers}")
+
+def json_rw(student_mark_dict):
+  with open ("student_data.json", "w") as f:
+    f.write("Some student data is stored here \n")
+    json.dump(student_mark_dict, f)
+  
+  with open ("student_data.json", "r") as f:
+    student_dic = json.load(f)
+    print(student_dic)
+
+  
+enter_students(num_of_students)
+use_student_manager(students_mark_dict, students_teacher_dict, student_names, student_marks, num_of_students, students_subjects)
+students_sort(students_mark_dict)
+teachers_by_grade(teachers_average_dict)
+search_student(students_mark_dict, students_subjects)
+filter_student(students_mark_dict, teachers_average_dict)
+json_rw(students_mark_dict)
+
+    
