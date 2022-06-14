@@ -1,0 +1,107 @@
+from grades_sorter import classroom
+from grades_sorter import final_grades
+from grades_sorter import student
+from grades_sorter import teacher
+
+def test_student_attributes():
+  Kyle = student("Kyle Bailey", 80)
+  assert Kyle.name == "Kyle Bailey" #passed
+  assert Kyle.grade == 80 #unsure how to test this because self.grade is aggregated with another class, gives assertionerror
+ 
+def test_teachers():
+  Gallo = teacher("Gallo", [50,70,60])
+  assert Gallo._avg == 60 
+
+#test_teachers()
+test_student_attributes()
+
+GRADES SORTER CODE USED FOR TESING:
+
+import json
+class classroom():
+  
+  def __init__(self, name, meet_req = True):
+    self.name = name
+    self._meet_req = meet_req
+  
+  def get_name(self):
+    return self.name
+  
+  def apply_fail_status(self):
+    self._meet_req = False
+    
+class final_grades(): #aggregation (boost grades)
+  
+  def __init__(self, final_grade):
+    self._final_grade = final_grade
+  
+  def add (self,amount):
+    self._final_grade += amount    
+  
+  def return_grade (self):
+    return self._final_grade
+   
+class student(classroom): #inheritance
+ 
+  def __init__(self, name, grade):
+    super().__init__(name, meet_req = True)
+    self.grade = final_grades(grade)
+ 
+  def boost(self,amount): #set final grade
+      if amount > 15:
+        raise ValueError("Too high of a raise")
+      print()
+      print(f"{self.name}'s grade is boosted from by {amount} from {self.grade.return_grade()}")
+      self.grade.add(amount)
+  
+  def get_final_grade (self):
+    print()
+    print(f"{self.name}'s final grade is {self.grade.return_grade()}")
+    return self.grade.return_grade()
+
+  def set_fail_or_pass (self):
+    if self.grade._final_grade < 50:
+      self._meet_req = False
+      print("")
+      print(f"{self.name} fails the class")
+    else:
+      print("")
+      print(f"{self.name} passes the class")
+  
+  def get_fail_or_pass (self):
+    return self._meet_req
+
+class teacher(classroom): #inheritance
+  
+  def __init__(self, name, class_marks = None, class_names = None):
+    super().__init__(name, meet_req = True )
+    if class_marks is None:
+      self.class_marks = []
+    else:
+      self.class_marks= class_marks
+    
+    self._avg = None
+  
+  def add_grade(self,mark):
+    self.class_marks.append(mark)
+
+  def set_avg(self):
+    if len(self.class_marks) == 0:
+      self._avg = 0
+    else:
+      self._avg = sum(self.class_marks)/len(self.class_marks)
+
+  def get_avg(self):
+    return self._avg
+
+  def set_fail_or_pass(self):
+    if self._avg < 60:
+      self._meet_req = False
+      print()
+      print(f"{self.name} requires an evaluation")
+      print()
+    else:
+      pass
+  
+  def get_fail_or_pass(self):
+    return self._meet_reeq
